@@ -245,7 +245,7 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 
 const firebaseConfig = {
   apiKey: "AIzaSyBv7dzMXZWlAVo0ugn3JRjDtFib33URbPo",
-  authDomain: "vocab-ele70.firebaseapp.com",
+  authDomain: "://firebaseapp.com",
   projectId: "vocab-ele70",
   storageBucket: "vocab-ele70.firebasestorage.app",
   messagingSenderId: "649460229924",
@@ -255,35 +255,39 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-const authScreen = document.getElementById('auth-screen');
-const emailInput = document.getElementById('auth-email');
-const passwordInput = document.getElementById('auth-password');
-const errorText = document.getElementById('auth-error');
+document.addEventListener('DOMContentLoaded', () => {
+  const authScreen = document.getElementById('auth-screen');
+  const emailInput = document.getElementById('auth-email');
+  const passwordInput = document.getElementById('auth-password');
+  const errorText = document.getElementById('auth-error');
 
-onAuthStateChanged(auth, (user) => {
-  if (user) { 
-    if(authScreen) authScreen.style.display = 'none'; 
-    try { initTrainer(); } catch(e){}
-  } else { 
-    if(authScreen) authScreen.style.display = 'flex'; 
+  onAuthStateChanged(auth, (user) => {
+    if (user) { 
+      if(authScreen) authScreen.style.display = 'none'; 
+      try { initTrainer(); } catch(e){}
+    } else { 
+      if(authScreen) authScreen.style.display = 'flex'; 
+    }
+  });
+
+  const signupBtn = document.getElementById('btn-signup');
+  if(signupBtn) {
+    signupBtn.addEventListener('click', () => {
+      errorText.innerText = "Регистрация...";
+      createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
+    });
+  }
+
+  const loginBtn = document.getElementById('btn-login');
+  if(loginBtn) {
+    loginBtn.addEventListener('click', () => {
+      errorText.innerText = "Вход...";
+      signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
+        .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
+    });
   }
 });
-
-const signupBtn = document.getElementById('btn-signup');
-if(signupBtn) {
-  signupBtn.addEventListener('click', () => {
-    createUserWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-      .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
-  });
-}
-
-const loginBtn = document.getElementById('btn-login');
-if(loginBtn) {
-  loginBtn.addEventListener('click', () => {
-    signInWithEmailAndPassword(auth, emailInput.value, passwordInput.value)
-      .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
-  });
-}
 </script>
 </body>
 </html>
