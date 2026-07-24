@@ -159,27 +159,9 @@
 
   <footer class="mt-16 text-center text-xs opacity-60">vocab · v1.0</footer>
 </div>
-<script type="module">
+<script>
 // ==========================================
-// 1. ИНИЦИАЛИЗАЦИЯ FIREBASE
-// ==========================================
-import { initializeApp } from "https://gstatic.com";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://gstatic.com";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBv7dzMXZWlAVo0ugn3JRjDtFib33URbPo",
-  authDomain: "://firebaseapp.com",
-  projectId: "vocab-ele70",
-  storageBucket: "vocab-ele70.firebasestorage.app",
-  messagingSenderId: "649460229924",
-  appId: "1:649460229924:web:3025550edd36304bf575b1"
-};
-
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// ==========================================
-// 2. КОД ТРЕНАЖЕРА VOCAB
+// КОД ВАШЕГО ТРЕНАЖЕРА VOCAB (СТАНДАРТНЫЙ)
 // ==========================================
 const BG="#001588", CARD="#fffbce";
 const KEY="vocab_words_v1";
@@ -204,12 +186,12 @@ function speak(text){
   speechSynthesis.cancel();speechSynthesis.speak(u);
 }
 
-window.setTab = function(t){
+function setTab(t){
   tab=t;
   document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
   const viewEl = document.getElementById("view-"+t);
   if(viewEl) viewEl.classList.remove("hidden");
-};
+}
 
 function renderTimer(){}
 function pickTimerWord(){}
@@ -247,15 +229,32 @@ function nextSentence(){
 }
 
 function initTrainer() {
-  if (typeof window.setTab === 'function') { try { window.setTab("cards"); } catch(e){} }
+  setTab("cards");
   renderTimer();
   pickTimerWord();
 }
 speechSynthesis.onvoiceschanged=()=>{};
+</script>
 
-// ==========================================
-// 3. ЛОГИКА АВТОРИЗАЦИИ И ОКОН
-// ==========================================
+<!-- ==========================================
+     ЛОГИКА АВТОРИЗАЦИИ FIREBASE (ОТДЕЛЬНЫЙ МОДУЛЬ)
+     ========================================== -->
+<script type="module">
+import { initializeApp } from "https://gstatic.com";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://gstatic.com";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBv7dzMXZWlAVo0ugn3JRjDtFib33URbPo",
+  authDomain: "vocab-ele70.firebaseapp.com",
+  projectId: "vocab-ele70",
+  storageBucket: "vocab-ele70.firebasestorage.app",
+  messagingSenderId: "649460229924",
+  appId: "1:649460229924:web:3025550edd36304bf575b1"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
 const authScreen = document.getElementById('auth-screen');
 const emailInput = document.getElementById('auth-email');
 const passwordInput = document.getElementById('auth-password');
