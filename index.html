@@ -1,23 +1,23 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vocab</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <style>
-        body { background: #001588; color: #fffbce; font-family: sans-serif; }
-        .view { display: none; }
-        .view.active { display: block; }
-        .ok { background: #d4f5d8 !important; }
-        .bad { background: #f8d0cc !important; }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>vocab — English trainer</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#001588; --card:#fffbce; }
+  html,body{background:var(--bg);color:var(--card);font-family:Inter,system-ui,sans-serif}
+  .serif{font-family:'DM Serif Display',serif}
+  .tabnum{font-variant-numeric:tabular-nums}
+  input,textarea{outline:none}
+  .ok{background:#d4f5d8 !important}
+  .bad{background:#f8d0cc !important}
+</style>
 </head>
 <body>
+ 
 <!-- Окно авторизации -->
 <div id="auth-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#001588; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fffbce; font-family:sans-serif; padding:20px; box-sizing:border-box;">
     <h2 style="font-size:24px; margin-bottom:20px;">Вход в Vocab</h2>
@@ -29,96 +29,258 @@
     </div>
     <p id="auth-error" style="color:#f8d0cc; margin-top:15px; font-size:14px; text-align:center;"></p>
 </div>
-
-<!-- Основной интерфейс тренажера -->
-<div class="p-4 max-w-md mx-auto">
-    <div class="flex justify-between mb-6">
-        <button onclick="setTab('cards')" class="px-4 py-2 rounded bg-blue-700">Карточки</button>
-        <button onclick="setTab('listen')" class="px-4 py-2 rounded bg-blue-700">Аудирование</button>
+ 
+<div class="mx-auto max-w-6xl px-6 py-10">
+  <header class="flex items-end justify-between flex-wrap gap-4">
+    <h1 class="serif text-5xl font-bold">vocab</h1>
+    <div class="text-right text-sm opacity-80">
+      <div>English trainer</div>
+      <div><span id="count">0</span> words</div>
     </div>
-
-    <!-- Вкладка Карточки -->
-    <div id="view-cards" class="view">
-        <div id="card" onclick="flipCard()" class="h-48 flex items-center justify-center bg-yellow-100 text-blue-900 text-2xl font-bold rounded-xl shadow-lg p-4 text-center cursor-pointer mb-6 select-none">
-            <span id="card-text">Нажмите Начать</span>
+  </header>
+ 
+  <nav class="mt-8 flex flex-wrap gap-2" id="tabs">
+    <button data-tab="cards" class="tab px-5 py-2 rounded-full text-sm font-medium border">Cards</button>
+    <button data-tab="write" class="tab px-5 py-2 rounded-full text-sm font-medium border">Write</button>
+    <button data-tab="listen" class="tab px-5 py-2 rounded-full text-sm font-medium border">Listen</button>
+    <button data-tab="sentence" class="tab px-5 py-2 rounded-full text-sm font-medium border">Sentence</button>
+  </nav>
+ 
+  <main class="mt-8">
+    <!-- CARDS -->
+    <section id="view-cards" class="view grid gap-8 lg:grid-cols-[1fr_18rem]">
+      <div>
+        <div id="card" class="relative rounded-3xl p-10 min-h-[280px] flex flex-col justify-center cursor-pointer select-none shadow-xl" style="background:var(--card);color:var(--bg)">
+          <div class="flex items-center justify-between text-xs uppercase tracking-widest opacity-70">
+            <span id="cardIdx">01 / 0</span>
+            <span id="cardSide">word</span>
+          </div>
+          <div id="cardText" class="mt-6 serif text-5xl font-bold break-words">—</div>
+          <div class="mt-6 flex items-center justify-between">
+            <button id="btnSpeak" class="text-sm px-3 py-1.5 rounded-full border" style="border-color:var(--bg);color:var(--bg)">🔊 listen (US)</button>
+            <span class="text-xs opacity-60">tap to flip</span>
+          </div>
         </div>
-        <div class="flex gap-4">
-            <button onclick="nextCard()" class="flex-1 py-3 bg-green-200 text-blue-900 font-bold rounded-xl text-lg">Следующая</button>
+        <div class="mt-4 flex gap-2">
+          <button id="btnPrev" class="flex-1 rounded-2xl py-3 font-medium" style="background:var(--card);color:var(--bg)">← Prev</button>
+          <button id="btnShuf" class="rounded-2xl px-6 py-3 font-medium" style="background:var(--card);color:var(--bg)">⇄</button>
+          <button id="btnNext" class="flex-1 rounded-2xl py-3 font-medium" style="background:var(--card);color:var(--bg)">Next →</button>
         </div>
-    </div>
-
-    <!-- Вкладка Аудирование -->
-    <div id="view-listen" class="view">
-        <div class="bg-blue-800 p-6 rounded-xl shadow-lg text-center mb-6">
-            <button id="lPlay" class="w-20 h-20 bg-yellow-100 rounded-full text-blue-900 text-3xl mx-auto mb-4 flex items-center justify-center">🔊</button>
-            <input type="text" id="lIn" placeholder="Введите услышанное слово" class="w-full p-3 rounded-lg text-black text-center text-lg mb-4">
-            <button id="lCheck" class="w-full py-3 bg-green-200 text-blue-900 font-bold rounded-xl text-lg">Проверить</button>
+ 
+        <!-- manager -->
+        <div class="mt-10 rounded-3xl p-6" style="background:var(--card);color:var(--bg)">
+          <div class="flex items-center justify-between flex-wrap gap-3">
+            <h3 class="serif text-2xl font-bold">Your words</h3>
+            <div class="flex gap-2 text-xs" id="modeBox">
+              <button data-mode="manual" class="mode px-3 py-1.5 rounded-full border" style="border-color:var(--bg)">My translation</button>
+              <button data-mode="auto" class="mode px-3 py-1.5 rounded-full border" style="border-color:var(--bg)">Auto translate</button>
+            </div>
+          </div>
+          <textarea id="ta" placeholder="word перевод&#10;book книга" class="mt-4 w-full rounded-xl p-3 text-sm min-h-24 bg-transparent border" style="border-color:var(--bg);color:var(--bg)"></textarea>
+          <button id="btnAdd" class="mt-3 rounded-full px-5 py-2 text-sm font-medium" style="background:var(--bg);color:var(--card)">Add words</button>
+          <ul id="list" class="mt-5 grid sm:grid-cols-2 gap-2"></ul>
         </div>
-    </div>
+      </div>
+ 
+      <aside class="flex flex-col items-center gap-4">
+        <img id="gromit" alt="mascot" class="w-56 h-auto drop-shadow-2xl" />
+        <div class="w-full rounded-3xl p-6 text-center" style="background:var(--card);color:var(--bg)">
+          <div class="text-xs uppercase tracking-widest opacity-70">Speaking timer</div>
+          <div id="timer" class="serif text-5xl font-bold mt-2 tabnum">01:00</div>
+          <div class="mt-4 pt-4 border-t" style="border-color:rgba(0,21,136,0.2)">
+            <div class="text-xs uppercase tracking-widest opacity-70">Speak about</div>
+            <div id="timerWord" class="serif text-3xl font-bold mt-1">—</div>
+            <div id="timerTr" class="text-sm opacity-70 mt-1">—</div>
+            <button id="btnTimerWord" class="mt-3 text-xs underline opacity-70 hover:opacity-100">↻ new word</button>
+          </div>
+          <div class="mt-4 flex gap-2">
+            <button id="btnTimer" class="flex-1 rounded-full py-2 text-sm font-medium border" style="border-color:var(--bg)">Start</button>
+            <button id="btnReset" class="flex-1 rounded-full py-2 text-sm font-medium border" style="border-color:var(--bg)">Reset</button>
+          </div>
+        </div>
+      </aside>
+    </section>
+ 
+    <!-- games templates -->
+    <section id="view-write" class="view hidden">
+      <div class="rounded-3xl p-8" style="background:var(--card);color:var(--bg)">
+        <h3 class="serif text-3xl font-bold">Write the English word</h3>
+        <div class="mt-6">
+          <div class="text-sm opacity-70">Translate:</div>
+          <div id="wRu" class="serif text-4xl font-bold mt-1">—</div>
+          <input id="wIn" placeholder="type here…" class="mt-5 w-full rounded-xl px-4 py-3 bg-transparent border text-lg" style="border-color:var(--bg);color:var(--bg)" />
+          <div id="wFb" class="mt-3 text-sm font-medium"></div>
+          <div class="mt-5 flex gap-2">
+            <button id="wCheck" class="rounded-full px-5 py-2 text-sm font-medium" style="background:var(--bg);color:var(--card)">Check</button>
+            <button id="wNext" class="rounded-full px-5 py-2 text-sm font-medium border" style="border-color:var(--bg)">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+ 
+    <section id="view-listen" class="view hidden">
+      <div class="rounded-3xl p-8" style="background:var(--card);color:var(--bg)">
+        <h3 class="serif text-3xl font-bold">Listen & write</h3>
+        <div class="mt-6">
+          <button id="lPlay" class="rounded-full px-6 py-3 text-base font-medium" style="background:var(--bg);color:var(--card)">🔊 Play word</button>
+          <input id="lIn" placeholder="what did you hear?" class="mt-5 w-full rounded-xl px-4 py-3 bg-transparent border text-lg" style="border-color:var(--bg);color:var(--bg)" />
+          <div id="lFb" class="mt-3 text-sm font-medium"></div>
+          <div class="mt-5 flex gap-2">
+            <button id="lCheck" class="rounded-full px-5 py-2 text-sm font-medium" style="background:var(--bg);color:var(--card)">Check</button>
+            <button id="lNext" class="rounded-full px-5 py-2 text-sm font-medium border" style="border-color:var(--bg)">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+ 
+    <section id="view-sentence" class="view hidden">
+      <div class="rounded-3xl p-8" style="background:var(--card);color:var(--bg)">
+        <h3 class="serif text-3xl font-bold">Fill the gap</h3>
+        <div class="mt-6">
+          <div class="text-sm opacity-70">Fill in the missing English word:</div>
+          <div id="sSent" class="serif text-2xl mt-2 leading-relaxed">—</div>
+          <div class="mt-2 text-xs opacity-60">hint (ru): <b id="sHint">—</b></div>
+          <input id="sIn" placeholder="missing word…" class="mt-5 w-full rounded-xl px-4 py-3 bg-transparent border text-lg" style="border-color:var(--bg);color:var(--bg)" />
+          <div id="sFb" class="mt-3 text-sm font-medium"></div>
+          <div class="mt-5 flex gap-2">
+            <button id="sCheck" class="rounded-full px-5 py-2 text-sm font-medium" style="background:var(--bg);color:var(--card)">Check</button>
+            <button id="sNext" class="rounded-full px-5 py-2 text-sm font-medium border" style="border-color:var(--bg)">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+ 
+  <footer class="mt-16 text-center text-xs opacity-60">vocab · v1.0</footer>
 </div>
-
-<img id="gromit" src="" style="display:none;">
-
-<!-- Скрипты приложения -->
+ 
 <script>
+const BG="#001588",CARD="#fffbce";
 const KEY="vocab_words_v1";
 const DEFAULTS=[
   {en:"amplify",ru:"усиливать"},{en:"reluctant",ru:"неохотный"},
   {en:"endeavor",ru:"стремление"},{en:"resilient",ru:"устойчивый"},
   {en:"concise",ru:"краткий"},{en:"profound",ru:"глубокий"}
-];
-let words = JSON.parse(localStorage.getItem(KEY)) || DEFAULTS;
-let idx=0, flipped=false, tab="cards";
-
+].map(w=>({id:crypto.randomUUID(),...w}));
+ 
+let words = JSON.parse(localStorage.getItem(KEY)||"null") || DEFAULTS;
+let idx=0, flipped=false, mode="manual", tab="cards";
+const save=()=>localStorage.setItem(KEY,JSON.stringify(words));
+ 
+// Gromit image (fallback if it fails)
+document.getElementById("gromit").src="";
+document.getElementById("gromit").onerror=function(){this.style.display="none"};
+ 
+/* -------- speech -------- */
 function speak(text){
   const u=new SpeechSynthesisUtterance(text);
   u.lang="en-US";
-  speechSynthesis.cancel();
-  speechSynthesis.speak(u);
+  const v=speechSynthesis.getVoices().find(x=>x.lang==="en-US");
+  if(v)u.voice=v;
+  speechSynthesis.cancel();speechSynthesis.speak(u);
 }
-
-window.setTab = function(t){
+ 
+/* -------- tabs -------- */
+function setTab(t){
   tab=t;
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  const viewEl = document.getElementById("view-"+t);
-  if(viewEl) viewEl.classList.add("active");
-  if(t==='listen') nextListen();
+  document.querySelectorAll(".view").forEach(v=>v.classList.add("hidden"));
+  document.getElementById("view-"+t).classList.remove("hidden");
+  document.querySelectorAll(".tab").forEach(b=>{
+    const on=b.dataset.tab===t;
+    b.style.background=on?CARD:"transparent";
+    b.style.color=on?BG:CARD;
+    b.style.borderColor=CARD;
+  });
+  if(t==="write")nextWrite();
+  if(t==="listen")nextListen();
+  if(t==="sentence")nextSentence();
+}
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+ 
+/* -------- cards -------- */
+function renderCard(){
+  document.getElementById("count").textContent=words.length;
+  const w=words[idx];
+  if(!w){document.getElementById("cardText").textContent="No words";return;}
+  document.getElementById("cardIdx").textContent=String(idx+1).padStart(2,"0")+" / "+words.length;
+  document.getElementById("cardSide").textContent=flipped?"translation":"word";
+  document.getElementById("cardText").textContent=flipped?w.ru:w.en;
+}
+document.getElementById("card").onclick=()=>{flipped=!flipped;renderCard();};
+document.getElementById("btnSpeak").onclick=e=>{e.stopPropagation();if(words[idx])speak(words[idx].en);};
+document.getElementById("btnPrev").onclick=()=>{idx=(idx-1+words.length)%words.length;flipped=false;renderCard();};
+document.getElementById("btnNext").onclick=()=>{idx=(idx+1)%words.length;flipped=false;renderCard();};
+document.getElementById("btnShuf").onclick=()=>{if(words.length<2)return;let n=Math.floor(Math.random()*words.length);if(n===idx)n=(n+1)%words.length;idx=n;flipped=false;renderCard();};
+ 
+/* -------- manager -------- */
+const AUTO={"привет":"hello","мир":"world","книга":"book","собака":"dog","кошка":"cat","дом":"house","вода":"water","хлеб":"bread","друг":"friend","любовь":"love","время":"time","день":"day","ночь":"night","солнце":"sun","луна":"moon"};
+function autoTr(s){s=s.toLowerCase().trim();if(/[а-яё]/i.test(s))return AUTO[s]||s;const e=Object.entries(AUTO).find(([,v])=>v===s);return e?e[0]:"(auto) "+s;}
+ 
+function renderList(){
+  const ul=document.getElementById("list");ul.innerHTML="";
+  words.forEach(w=>{
+    const li=document.createElement("li");
+    li.className="flex items-center justify-between rounded-xl px-3 py-2 border";
+    li.style.borderColor=BG;
+    li.innerHTML=`<span class="text-sm"><b>${w.en}</b> · ${w.ru}</span><button class="text-xs opacity-70 hover:opacity-100">✕</button>`;
+    li.querySelector("button").onclick=()=>{words=words.filter(x=>x.id!==w.id);if(idx>=words.length)idx=0;save();renderList();renderCard();};
+    ul.appendChild(li);
+  });
+}
+function setMode(m){mode=m;document.querySelectorAll(".mode").forEach(b=>{const on=b.dataset.mode===m;b.style.background=on?BG:"transparent";b.style.color=on?CARD:BG;});}
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+document.getElementById("btnAdd").onclick=()=>{
+  const lines=document.getElementById("ta").value.split("\n").map(s=>s.trim()).filter(Boolean);
+  for(const line of lines){
+    const parts=line.split(/\s+/);
+    if(mode==="auto"){const en=parts.join(" ");words.push({id:crypto.randomUUID(),en,ru:autoTr(en)});}
+    else{if(parts.length<2)continue;words.push({id:crypto.randomUUID(),en:parts[0],ru:parts.slice(1).join(" ")});}
+  }
+  document.getElementById("ta").value="";save();renderList();renderCard();
 };
-
-function flipCard(){
-    flipped = !flipped;
-    const w = words[idx];
-    document.getElementById("card-text").textContent = flipped ? w.ru : w.en;
-}
-window.flipCard = flipCard;
-
-function nextCard(){
-    idx = (idx + 1) % words.length;
-    flipped = false;
-    document.getElementById("card-text").textContent = words[idx].en;
-    speak(words[idx].en);
-}
-window.nextCard = nextCard;
-
+ 
+/* -------- timer -------- */
+let left=60,running=false,tid=null;
+function renderTimer(){const m=String(Math.floor(left/60)).padStart(2,"0"),s=String(left%60).padStart(2,"0");document.getElementById("timer").textContent=m+":"+s;document.getElementById("btnTimer").textContent=running?"Pause":"Start";}
+function pickTimerWord(){const el=document.getElementById("timerWord"),tr=document.getElementById("timerTr");if(!words.length){el.textContent="—";tr.textContent="add words first";return;}const w=words[Math.floor(Math.random()*words.length)];el.textContent=w.en;tr.textContent=w.ru;}
+document.getElementById("btnTimerWord").onclick=pickTimerWord;
+document.getElementById("btnTimer").onclick=()=>{running=!running;if(running){pickTimerWord();tid=setInterval(()=>{left--;if(left<=0){left=0;running=false;clearInterval(tid);}renderTimer();},1000);}else{clearInterval(tid);}renderTimer();};
+document.getElementById("btnReset").onclick=()=>{clearInterval(tid);running=false;left=60;renderTimer();pickTimerWord();};
+ 
+/* -------- games -------- */
+function pick(){return words[Math.floor(Math.random()*words.length)];}
+function fb(el,ok){el.textContent=ok?"✓ Correct!":"✗ Try again";el.style.color=ok?"#0a7d2f":"#b3261e";}
+ 
+let wCur=null;
+function nextWrite(){wCur=pick();document.getElementById("wRu").textContent=wCur?wCur.ru:"—";const i=document.getElementById("wIn");i.value="";i.classList.remove("ok","bad");document.getElementById("wFb").textContent="";}
+document.getElementById("wCheck").onclick=()=>{if(!wCur)return;const i=document.getElementById("wIn");const ok=i.value.trim().toLowerCase()===wCur.en.toLowerCase();i.classList.remove("ok","bad");i.classList.add(ok?"ok":"bad");fb(document.getElementById("wFb"),ok);};
+document.getElementById("wNext").onclick=nextWrite;
+document.getElementById("wIn").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("wCheck").click();});
+ 
 let lCur=null;
-function nextListen(){
-  lCur = words[Math.floor(Math.random()*words.length)];
-  const i=document.getElementById("lIn");
-  if(i){ i.value=""; i.className="w-full p-3 rounded-lg text-black text-center text-lg mb-4"; }
-}
-window.nextListen = nextListen;
-
-function initTrainer() {
-  window.setTab("cards");
-  if(words.length > 0) document.getElementById("card-text").textContent = words[idx].en;
-}
-window.initTrainer = initTrainer;
+function nextListen(){lCur=pick();const i=document.getElementById("lIn");i.value="";i.classList.remove("ok","bad");document.getElementById("lFb").textContent="";if(lCur)speak(lCur.en);}
+document.getElementById("lPlay").onclick=()=>{if(lCur)speak(lCur.en);};
+document.getElementById("lCheck").onclick=()=>{if(!lCur)return;const i=document.getElementById("lIn");const ok=i.value.trim().toLowerCase()===lCur.en.toLowerCase();i.classList.remove("ok","bad");i.classList.add(ok?"ok":"bad");fb(document.getElementById("lFb"),ok);};
+document.getElementById("lNext").onclick=nextListen;
+document.getElementById("lIn").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("lCheck").click();});
+ 
+const TEMPL=["I want to ___ my English skills.","She is very ___ about the results.","Please try to ___ this idea clearly.","They decided to ___ despite the difficulty.","It's important to ___ every single day.","Can you ___ that for me?","We should ___ before making a decision.","He tends to ___ when under pressure."];
+let sCur=null;
+function nextSentence(){sCur=pick();const t=TEMPL[Math.floor(Math.random()*TEMPL.length)];const [a,b]=t.split("___");document.getElementById("sSent").innerHTML=a+'<span class="inline-block min-w-24 border-b-2" style="border-color:'+BG+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>'+b;document.getElementById("sHint").textContent=sCur?sCur.ru:"—";const i=document.getElementById("sIn");i.value="";i.classList.remove("ok","bad");document.getElementById("sFb").textContent="";}
+document.getElementById("sCheck").onclick=()=>{if(!sCur)return;const i=document.getElementById("sIn");const ok=i.value.trim().toLowerCase()===sCur.en.toLowerCase();i.classList.remove("ok","bad");i.classList.add(ok?"ok":"bad");fb(document.getElementById("sFb"),ok);};
+document.getElementById("sNext").onclick=nextSentence;
+document.getElementById("sIn").addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("sCheck").click();});
+ 
+/* init */
+setMode("manual");setTab("cards");renderCard();renderList();renderTimer();pickTimerWord();
+speechSynthesis.onvoiceschanged=()=>{};
 </script>
-
+ 
+<!-- Firebase authentication -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
+ 
 const firebaseConfig = {
   apiKey: "AIzaSyBv7dzMXZwlAVo0ugN3JRjDtFib33URbPo",
   authDomain: "vocab-e1e70.firebaseapp.com",
@@ -127,10 +289,10 @@ const firebaseConfig = {
   messagingSenderId: "649460229924",
   appId: "1:649460229924:web:3025550edd36304bf575b1"
 };
-
+ 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-
+ 
 document.addEventListener('DOMContentLoaded', () => {
   const authScreen = document.getElementById('auth-screen');
   const emailInput = document.getElementById('auth-email');
@@ -138,16 +300,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorText = document.getElementById('auth-error');
   const loginBtn = document.getElementById('btn-login');
   const signupBtn = document.getElementById('btn-signup');
-
+ 
   onAuthStateChanged(auth, (user) => {
     if (user) {
       if(authScreen) authScreen.style.display = 'none';
-      try { window.initTrainer(); } catch(e){}
     } else {
       if(authScreen) authScreen.style.display = 'flex';
     }
   });
-
+ 
   if(signupBtn) {
     signupBtn.onclick = () => {
       errorText.innerText = "Регистрация...";
@@ -155,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
     };
   }
-
+ 
   if(loginBtn) {
     loginBtn.onclick = () => {
       errorText.innerText = "Вход...";
@@ -163,25 +324,8 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch((error) => { errorText.innerText = "Ошибка: " + error.message; });
     };
   }
-
-  const playBtn = document.getElementById("lPlay");
-  if(playBtn) playBtn.onclick=()=>{if(lCur) speak(lCur.en);};
-
-  const checkBtn = document.getElementById("lCheck");
-  if(checkBtn) {
-    checkBtn.onclick=()=>{
-      const i=document.getElementById("lIn");
-      if(i && lCur) {
-        if(i.value.trim().toLowerCase() === lCur.en.toLowerCase()) {
-            i.classList.add("ok");
-            setTimeout(nextListen, 1000);
-        } else {
-            i.classList.add("bad");
-        }
-      }
-    };
-  }
 });
 </script>
 </body>
 </html>
+ 
