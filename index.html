@@ -18,7 +18,6 @@
     </style>
 </head>
 <body>
-
 <!-- Окно авторизации -->
 <div id="auth-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#001588; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#fffbce; font-family:sans-serif; padding:20px; box-sizing:border-box;">
     <h2 style="font-size:24px; margin-bottom:20px;">Вход в Vocab</h2>
@@ -68,7 +67,6 @@ const DEFAULTS=[
   {en:"endeavor",ru:"стремление"},{en:"resilient",ru:"устойчивый"},
   {en:"concise",ru:"краткий"},{en:"profound",ru:"глубокий"}
 ];
-
 let words = JSON.parse(localStorage.getItem(KEY)) || DEFAULTS;
 let idx=0, flipped=false, tab="cards";
 
@@ -118,12 +116,12 @@ window.initTrainer = initTrainer;
 </script>
 
 <script type="module">
-import { initializeApp } from "https://gstatic.com";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://gstatic.com";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBv7dzMXZWlAVo0ugn3JRjDtFib33URbPo",
-  authDomain: "://firebaseapp.com",
+  authDomain: "vocab-ele70.firebaseapp.com",
   projectId: "vocab-ele70",
   storageBucket: "vocab-ele70.firebasestorage.app",
   messagingSenderId: "649460229924",
@@ -142,11 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const signupBtn = document.getElementById('btn-signup');
 
   onAuthStateChanged(auth, (user) => {
-    if (user) { 
-      if(authScreen) authScreen.style.display = 'none'; 
+    if (user) {
+      if(authScreen) authScreen.style.display = 'none';
       try { window.initTrainer(); } catch(e){}
-    } else { 
-      if(authScreen) authScreen.style.display = 'flex'; 
+    } else {
+      if(authScreen) authScreen.style.display = 'flex';
     }
   });
 
